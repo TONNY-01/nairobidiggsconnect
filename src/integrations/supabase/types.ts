@@ -14,29 +14,309 @@ export type Database = {
   }
   public: {
     Tables: {
+      messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          property_id: string | null
+          read: boolean | null
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          property_id?: string | null
+          read?: boolean | null
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          property_id?: string | null
+          read?: boolean | null
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      move_requests: {
+        Row: {
+          created_at: string | null
+          distance_km: number | null
+          dropoff_location: string
+          estimated_cost: number | null
+          id: string
+          move_date: string
+          mover_id: string
+          notes: string | null
+          packing_help: boolean | null
+          pickup_location: string
+          property_id: string | null
+          status: string | null
+          tenant_id: string
+          updated_at: string | null
+          van_size: string
+        }
+        Insert: {
+          created_at?: string | null
+          distance_km?: number | null
+          dropoff_location: string
+          estimated_cost?: number | null
+          id?: string
+          move_date: string
+          mover_id: string
+          notes?: string | null
+          packing_help?: boolean | null
+          pickup_location: string
+          property_id?: string | null
+          status?: string | null
+          tenant_id: string
+          updated_at?: string | null
+          van_size: string
+        }
+        Update: {
+          created_at?: string | null
+          distance_km?: number | null
+          dropoff_location?: string
+          estimated_cost?: number | null
+          id?: string
+          move_date?: string
+          mover_id?: string
+          notes?: string | null
+          packing_help?: boolean | null
+          pickup_location?: string
+          property_id?: string | null
+          status?: string | null
+          tenant_id?: string
+          updated_at?: string | null
+          van_size?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "move_requests_mover_id_fkey"
+            columns: ["mover_id"]
+            isOneToOne: false
+            referencedRelation: "movers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "move_requests_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "move_requests_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mover_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          move_request_id: string | null
+          mover_id: string
+          rating: number
+          reviewer_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          move_request_id?: string | null
+          mover_id: string
+          rating: number
+          reviewer_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          move_request_id?: string | null
+          mover_id?: string
+          rating?: number
+          reviewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mover_reviews_move_request_id_fkey"
+            columns: ["move_request_id"]
+            isOneToOne: false
+            referencedRelation: "move_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mover_reviews_mover_id_fkey"
+            columns: ["mover_id"]
+            isOneToOne: false
+            referencedRelation: "movers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mover_reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mover_services: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          fixed_rate: number | null
+          hourly_rate: number
+          id: string
+          mover_id: string
+          van_size: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          fixed_rate?: number | null
+          hourly_rate: number
+          id?: string
+          mover_id: string
+          van_size: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          fixed_rate?: number | null
+          hourly_rate?: number
+          id?: string
+          mover_id?: string
+          van_size?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mover_services_mover_id_fkey"
+            columns: ["mover_id"]
+            isOneToOne: false
+            referencedRelation: "movers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      movers: {
+        Row: {
+          avatar_url: string | null
+          business_name: string
+          created_at: string | null
+          description: string | null
+          email: string | null
+          id: string
+          phone: string
+          rating: number | null
+          service_areas: string[] | null
+          total_jobs: number | null
+          updated_at: string | null
+          user_id: string
+          verification_status: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          business_name: string
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          id?: string
+          phone: string
+          rating?: number | null
+          service_areas?: string[] | null
+          total_jobs?: number | null
+          updated_at?: string | null
+          user_id: string
+          verification_status?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          business_name?: string
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          id?: string
+          phone?: string
+          rating?: number | null
+          service_areas?: string[] | null
+          total_jobs?: number | null
+          updated_at?: string | null
+          user_id?: string
+          verification_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          ai_enabled: boolean | null
           avatar_url: string | null
           created_at: string
           full_name: string
+          groq_api_key: string | null
           id: string
           phone: string | null
           updated_at: string
           user_role: Database["public"]["Enums"]["user_role"]
         }
         Insert: {
+          ai_enabled?: boolean | null
           avatar_url?: string | null
           created_at?: string
           full_name: string
+          groq_api_key?: string | null
           id: string
           phone?: string | null
           updated_at?: string
           user_role?: Database["public"]["Enums"]["user_role"]
         }
         Update: {
+          ai_enabled?: boolean | null
           avatar_url?: string | null
           created_at?: string
           full_name?: string
+          groq_api_key?: string | null
           id?: string
           phone?: string | null
           updated_at?: string
@@ -63,6 +343,7 @@ export type Database = {
           title: string
           updated_at: string
           utilities_included: boolean | null
+          video_url: string | null
         }
         Insert: {
           amenities?: string[] | null
@@ -82,6 +363,7 @@ export type Database = {
           title: string
           updated_at?: string
           utilities_included?: boolean | null
+          video_url?: string | null
         }
         Update: {
           amenities?: string[] | null
@@ -101,6 +383,7 @@ export type Database = {
           title?: string
           updated_at?: string
           utilities_included?: boolean | null
+          video_url?: string | null
         }
         Relationships: [
           {
@@ -183,21 +466,49 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "moderator" | "user"
       property_type:
         | "studio"
         | "one_bedroom"
         | "two_bedroom"
         | "three_bedroom_plus"
         | "bedsitter"
-      user_role: "tenant" | "caretaker"
+      user_role: "tenant" | "caretaker" | "admin" | "mover"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -325,6 +636,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "moderator", "user"],
       property_type: [
         "studio",
         "one_bedroom",
@@ -332,7 +644,7 @@ export const Constants = {
         "three_bedroom_plus",
         "bedsitter",
       ],
-      user_role: ["tenant", "caretaker"],
+      user_role: ["tenant", "caretaker", "admin", "mover"],
     },
   },
 } as const
