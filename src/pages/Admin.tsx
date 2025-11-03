@@ -12,14 +12,17 @@ const Admin = () => {
   const handleSeedProperties = async () => {
     setIsSeeding(true);
     try {
-      const { data, error } = await supabase.functions.invoke("seed-properties");
+      const { data, error } = await supabase.functions.invoke("seed-affordable-properties");
       
       if (error) throw error;
 
       toast({
         title: "Success!",
-        description: "20 properties with AI-generated images have been created.",
+        description: "25 bedsitters and 1BR apartments with AI-generated images have been created.",
       });
+      
+      // Refresh the page after 2 seconds to show new properties
+      setTimeout(() => window.location.href = "/listings", 2000);
     } catch (error) {
       console.error("Seeding error:", error);
       toast({
@@ -43,10 +46,10 @@ const Admin = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <h3 className="font-semibold">Seed Properties</h3>
+            <h3 className="font-semibold">Seed Affordable Properties</h3>
             <p className="text-sm text-muted-foreground">
-              This will create 20 rental properties with AI-generated images across various Nairobi neighborhoods.
-              Each property will include realistic pricing, amenities, and professional property photos.
+              This will create 25 bedsitters and 1-bedroom apartments with AI-generated images across Nairobi.
+              Perfect for testing the browse homes page with realistic, affordable rental options.
             </p>
           </div>
           <Button 
@@ -55,10 +58,11 @@ const Admin = () => {
             className="w-full"
           >
             {isSeeding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isSeeding ? "Generating Properties..." : "Seed 20 Properties"}
+            {isSeeding ? "Generating 25 Properties..." : "Seed 25 Affordable Properties"}
           </Button>
           <p className="text-xs text-muted-foreground">
-            Note: This process may take 2-3 minutes as it generates unique AI images for each property.
+            Note: This process may take 3-5 minutes as it generates unique AI images for each property. 
+            You'll be redirected to the listings page when complete.
           </p>
         </CardContent>
       </Card>

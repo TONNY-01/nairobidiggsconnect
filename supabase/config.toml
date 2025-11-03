@@ -15,3 +15,6 @@ verify_jwt = true
 
 [functions.seed-properties]
 verify_jwt = false
+
+[functions.seed-affordable-properties]
+verify_jwt = false
