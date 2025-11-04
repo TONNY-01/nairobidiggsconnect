@@ -12,80 +12,87 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        global: {
-          headers: { Authorization: req.headers.get("Authorization")! },
-        },
-      }
-    );
-
-    const {
-      data: { user },
-    } = await supabaseClient.auth.getUser();
-
-    if (!user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Get user's Groq API key
-    const { data: profile, error: profileError } = await supabaseClient
-      .from("profiles")
-      .select("groq_api_key, ai_enabled")
-      .eq("id", user.id)
-      .single();
-
-    if (profileError || !profile?.groq_api_key || !profile?.ai_enabled) {
+    const groqApiKey = Deno.env.get("GROQ_API_KEY");
+    
+    if (!groqApiKey) {
       return new Response(
-        JSON.stringify({ error: "Groq API key not configured" }),
+        JSON.stringify({ error: "Groq API key not configured on server" }),
         {
-          status: 400,
+          status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
     }
 
-    const { prompt, context } = await req.json();
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
 
-    // Build system message based on context
-    let systemMessage = "You are an AI assistant for a housing rental platform in Nairobi, Kenya. ";
-    
-    if (context) {
-      switch (context.type) {
-        case "listing":
-          systemMessage += "Help improve property listings by making them more attractive to tenants. Focus on highlighting key features, using persuasive language, and emphasizing value. Consider local Nairobi neighborhoods, transport links, and affordability.";
-          break;
-        case "tenant_match":
-          systemMessage += "Analyze how well a property matches a tenant's requirements. Score the match 0-100 and explain the top 3 reasons for the score. Consider budget, location preferences, amenities, and property condition.";
-          break;
-        case "move_cost":
-          systemMessage += "Estimate moving costs in Nairobi based on property size, distance, and service level. Suggest appropriate van sizes (small for studios/bedsitters, medium for 1-2BR, large for 3BR+). Provide cost estimates in KSh.";
-          break;
-        default:
-          systemMessage += "Provide helpful, accurate information about housing and moving in Nairobi.";
+    const { messages, includeProperties } = await req.json();
+
+    // Fetch available properties if requested
+    let propertiesContext = "";
+    if (includeProperties) {
+      const { data: properties, error: propertiesError } = await supabaseClient
+        .from("properties")
+        .select(`
+          id,
+          title,
+          description,
+          location,
+          neighborhood,
+          price,
+          deposit,
+          property_type,
+          rooms,
+          amenities,
+          is_furnished,
+          utilities_included,
+          available_from
+        `)
+        .eq("status", "available")
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (properties && properties.length > 0) {
+        propertiesContext = "\n\nAvailable Properties:\n" + properties.map(p => 
+          `- ${p.title} (${p.property_type}): ${p.rooms} room(s) in ${p.location}${p.neighborhood ? ', ' + p.neighborhood : ''} at KSh ${p.price}/month. ${p.description.slice(0, 100)}... Amenities: ${p.amenities.join(', ')}`
+        ).join("\n");
       }
     }
+
+    // Build system message
+    const systemMessage = `You are a helpful AI assistant for a housing rental platform in Nairobi, Kenya. 
+
+Your role is to help users find their perfect home by:
+- Understanding their budget, location preferences, and requirements
+- Recommending suitable properties from the available listings
+- Answering questions about neighborhoods, amenities, and property features
+- Providing guidance on rental processes and moving
+
+Be conversational, friendly, and helpful. When recommending properties, mention specific details like location, price, and key features. Always prioritize the user's stated budget and requirements.${propertiesContext}`;
+
+    // Prepare messages array with system message
+    const apiMessages = [
+      { role: "system", content: systemMessage },
+      ...messages
+    ];
+
+    console.log("Calling Groq API with messages:", JSON.stringify(apiMessages));
 
     // Call Groq API
     const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${profile.groq_api_key}`,
+        "Authorization": `Bearer ${groqApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         model: "llama-3.3-70b-versatile",
-        messages: [
-          { role: "system", content: systemMessage },
-          { role: "user", content: prompt },
-        ],
+        messages: apiMessages,
         temperature: 0.7,
-        max_tokens: 500,
+        max_tokens: 1000,
       }),
     });
 

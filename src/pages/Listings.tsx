@@ -3,12 +3,15 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import PropertyCard from "@/components/PropertyCard";
 import SearchFilters from "@/components/SearchFilters";
-import { Loader2 } from "lucide-react";
+import HouseFinderChat from "@/components/HouseFinderChat";
+import { Button } from "@/components/ui/button";
+import { Loader2, MessageCircle, X } from "lucide-react";
 
 const Listings = () => {
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<any>({});
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     fetchProperties();
@@ -61,47 +64,63 @@ const Listings = () => {
       <Navbar />
       
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Available Properties</h1>
-          <p className="text-muted-foreground">Find your perfect home in Nairobi</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Available Properties</h1>
+            <p className="text-muted-foreground">Find your perfect home in Nairobi</p>
+          </div>
+          <Button
+            size="lg"
+            onClick={() => setShowChat(!showChat)}
+            className="gap-2"
+          >
+            <MessageCircle className="w-5 h-5" />
+            {showChat ? "Hide" : "AI House Finder"}
+          </Button>
         </div>
 
-        <div className="grid lg:grid-cols-4 gap-8">
-          <aside className="lg:col-span-1">
-            <div className="sticky top-20">
-              <SearchFilters onFilterChange={setFilters} />
-            </div>
-          </aside>
+        {showChat ? (
+          <div className="max-w-4xl mx-auto">
+            <HouseFinderChat />
+          </div>
+        ) : (
+          <div className="grid lg:grid-cols-4 gap-8">
+            <aside className="lg:col-span-1">
+              <div className="sticky top-20">
+                <SearchFilters onFilterChange={setFilters} />
+              </div>
+            </aside>
 
-          <main className="lg:col-span-3">
-            {loading ? (
-              <div className="flex items-center justify-center h-64">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : properties.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-xl text-muted-foreground">No properties found matching your criteria</p>
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {properties.map((property) => (
-                  <PropertyCard
-                    key={property.id}
-                    id={property.id}
-                    title={property.title}
-                    price={property.price}
-                    location={property.location}
-                    neighborhood={property.neighborhood}
-                    propertyType={property.property_type}
-                    rooms={property.rooms}
-                    imageUrl={property.property_images?.[0]?.image_url}
-                    isFurnished={property.is_furnished}
-                  />
-                ))}
-              </div>
-            )}
-          </main>
-        </div>
+            <main className="lg:col-span-3">
+              {loading ? (
+                <div className="flex items-center justify-center h-64">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : properties.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-xl text-muted-foreground">No properties found matching your criteria</p>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {properties.map((property) => (
+                    <PropertyCard
+                      key={property.id}
+                      id={property.id}
+                      title={property.title}
+                      price={property.price}
+                      location={property.location}
+                      neighborhood={property.neighborhood}
+                      propertyType={property.property_type}
+                      rooms={property.rooms}
+                      imageUrl={property.property_images?.[0]?.image_url}
+                      isFurnished={property.is_furnished}
+                    />
+                  ))}
+                </div>
+              )}
+            </main>
+          </div>
+        )}
       </div>
     </div>
   );
