@@ -6,6 +6,11 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import house from "@/assets/house.jpeg";
+import house1 from "@/assets/house1.jpeg";
+import house2 from "@/assets/house2.jpeg";
+
+const fallbackImages = [house, house1, house2];
 
 interface PropertyCardProps {
   id: string;
@@ -82,21 +87,22 @@ const PropertyCard = ({
     return type.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
+  const getFallbackImage = () => {
+    const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return fallbackImages[hash % fallbackImages.length];
+  };
+
+  const displayImage = imageUrl || getFallbackImage();
+
   return (
     <Link to={`/property/${id}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group">
         <div className="relative h-48 bg-muted overflow-hidden">
-          {imageUrl ? (
-            <img 
-              src={imageUrl} 
-              alt={title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
-              <MapPin className="h-12 w-12 text-muted-foreground" />
-            </div>
-          )}
+          <img 
+            src={displayImage} 
+            alt={title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
           <Button
             size="icon"
             variant="secondary"
