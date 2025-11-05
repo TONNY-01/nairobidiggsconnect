@@ -63,6 +63,9 @@ const Navbar = () => {
           <Button variant="ghost" asChild>
             <Link to="/listings">Browse Homes</Link>
           </Button>
+          <Button variant="ghost" asChild>
+            <Link to="/movers">Find Movers</Link>
+          </Button>
 
           {user ? (
             <>
