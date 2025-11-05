@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/b08803b6-be83-4e82-b4e4-21c725e997c7
+**URL**: https://nairobi-digs-connect.lovable.app
 
 ## How can I edit this code?
 
